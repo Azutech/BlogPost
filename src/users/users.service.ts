@@ -9,14 +9,14 @@ import * as bcrypt from 'bcrypt';
 export class UserService {
   constructor(@InjectModel(User.name) private readonly userModel: Model<User>) {}
 
-  async create(username: string, password: string): Promise<User> {
+  async create(email: string, password: string): Promise<User> {
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = new this.userModel({ username, password: hashedPassword });
+    const user = new this.userModel({ email, password: hashedPassword });
     return user.save();
   }
 
-  async findByUsername(username: string): Promise<User | null> {
-    return this.userModel.findOne({ username }).exec();
+  async findByEmail(email: string): Promise<User | null> {
+    return this.userModel.findOne({ email }).exec();
   }
 
   async comparePasswords(plainPassword: string, hashedPassword: string): Promise<boolean> {

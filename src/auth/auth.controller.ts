@@ -11,25 +11,25 @@ export class AuthController {
   ) {}
 
   @Post('register')
-  async register(@Body() body: { username: string; password: string }) {
-    const { username, password } = body;
+  async register(@Body() body: { email: string; password: string }) {
+    const { email, password } = body;
 
-    const existingUser = await this.userService.findByUsername(username);
+    const existingUser = await this.userService.findByEmail(email);
     if (existingUser) {
       throw new HttpException('User already exists', HttpStatus.BAD_REQUEST);
     }
 
-    const newUser = await this.userService.create(username, password);
+    const newUser = await this.userService.create(email, password);
     const token = await this.authService.generateToken(newUser);
 
     return { token };
   }
 
   @Post('login')
-  async login(@Body() body: { username: string; password: string }) {
-    const { username, password } = body;
+  async login(@Body() body: { email: string; password: string }) {
+    const { email, password } = body;
 
-    const user = await this.userService.findByUsername(username);
+    const user = await this.userService.findByEmail(email);
     if (!user || !(await this.userService.comparePasswords(password, user.password))) {
       throw new HttpException('Invalid credentials', HttpStatus.UNAUTHORIZED);
     }
