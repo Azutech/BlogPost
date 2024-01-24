@@ -1,5 +1,5 @@
 // blogpost.controller.ts
-import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, UseGuards, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { BlogspotService } from './blogspot.service';
 import { BlogPost } from '../blogspot/schema/blogspot';
@@ -32,13 +32,27 @@ export class BlogspotController {
     @Body() body: { title: string; content: string },
   ): Promise<BlogPost | null> {
     const { title, content } = body;
-    return this.blogPostService.update(id, title, content);
+    const updatedPost = await this.blogPostService.update(id, title, content);
+
+    if (!updatedPost) {
+      // Handle case where update was unsuccessful
+      throw new NotFoundException(`Blog post with ID ${id} not found.`);
+    }
+
+    return updatedPost;
   }
 
   @UseGuards(AuthGuard('jwt'))
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<void> {
-    return this.blogPostService.delete(id);
+    console.log(`Deleting blog post with ID: ${id}`);
+  try {
+    await this.blogPostService.delete(id);
+    console.log(`Blog post with ID ${id} deleted successfully.`);
+  } catch (error) {
+    console.error('Error deleting blog post:', error);
+    throw new InternalServerErrorException('Error deleting blog post.');
+  }
   }
 }
 

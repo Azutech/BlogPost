@@ -10,7 +10,7 @@ async function bootstrap() {
   const configService = app.get(ConfigService);
 
   const port = configService.get<string>('PORT');
-  app.setGlobalPrefix('/api/v1');
+  app.setGlobalPrefix('api/v1');
 
   // port
   await app.listen(port, () => logger.log(`App running on Port: ${port}`));
